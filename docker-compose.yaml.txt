@@ -1,0 +1,47 @@
+---
+version: "3.9"
+services:
+  master:
+    image: jenkins/jenkins:lts
+    container_name: jenkins_master
+    user: core
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - jenkinsdata:/var/jenkins_home/
+    networks:
+      - network
+    restart: always
+  agent:
+    image: jenkins/ssh-agent:latest
+    container_name: jenkins_agent
+    env_file:
+      - jenkins_agent.env
+    depends_on:
+      - master
+    ports:
+      - 22:22
+    networks:
+      - network
+    restart: always
+
+#  nexus:
+#    image: sonatype/nexus3
+#    container_name: nexus3
+#  depends_on:
+#    - agent
+#    - master
+#    ports:
+#      - 8081:8081
+#    networks:
+#      - network
+#    restart: always
+
+volumes:
+  jenkinsdata:
+    external: true
+  
+networks:
+  network:
+    driver: bridge   
